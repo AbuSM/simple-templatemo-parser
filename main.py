@@ -35,10 +35,10 @@ def get_download_links():
                         open('./links.txt', 'a+').write(f'Name: {name}\nUrl: {download_url}\n------\n')
     print('got names: ', names)
     print('got urls: ', urls)
-    return zip(names, urls)
+    return names, urls
 
 
-def parse_urls_from_file(filename):
+def get_urls_from_file(filename):
     urls = []
     names = []
     with open(filename, 'r') as f:
@@ -50,9 +50,11 @@ def parse_urls_from_file(filename):
         elif line.find('Name:') > -1:
             names.append(line.replace('Name: ', ''))
 
+    return names, urls
 
-def download_files_by_links():
-    for (name, url) in get_download_links():
+
+def download_files_by_links(names, urls):
+    for (name, url) in zip(names, urls):
         print('Downloading %s' % url)
         response = requests.get(url)
         open('./templates/' + name + '.zip', 'a+b').write(response.content)
@@ -61,6 +63,7 @@ def download_files_by_links():
 
 if __name__ == '__main__':
     start_time = time.time()
-    download_files_by_links()
+    names, urls = get_urls_from_file('./links.txt')
+    download_files_by_links(names, urls)
     print('Finished in: %s' % (time.time() - start_time))
 
