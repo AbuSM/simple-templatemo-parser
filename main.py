@@ -1,5 +1,6 @@
 import requests
 import time
+import re
 from bs4 import BeautifulSoup
 
 
@@ -48,16 +49,17 @@ def get_urls_from_file(filename):
         if line.find('Url:') > -1:
             urls.append(line.replace('Url: ', ''))
         elif line.find('Name:') > -1:
-            names.append(line.replace('Name: ', ''))
+            names.append(line.replace('Name: ', '').replace('\n', ''))
 
     return names, urls
 
 
 def download_files_by_links(names, urls):
     for (name, url) in zip(names, urls):
-        print('Downloading %s' % url)
-        response = requests.get(url)
-        open('./templates/' + name + '.zip', 'a+b').write(response.content)
+        new_url = url.replace('\n', '') + '.zip'
+        print('Downloading %s' % new_url)
+        response = requests.get(new_url, allow_redirects=True)
+        open('./templates/' + name + '.zip', 'w+b').write(response.content)
         print('File %s completely downloaded' % name)
 
 
